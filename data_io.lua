@@ -21,7 +21,6 @@ end
 --   ** image_set.data: 4D tensor no_img x 3-channels x w x h
 --   ** image_set.label: 1D tensor containing IDs as integers
 -- [output: classes] an array of string mapping the categories and the table.label IDs
--- note: the table indexing function is already setup to be compatible with Torch NN
 function load_images_and_labels( folder_path, width, height )
     classes = {}
     local image_paths = {}
