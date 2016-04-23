@@ -6,11 +6,11 @@ require 'xlua';
 local options = paths.dofile('args.lua')
 opt = options.parse(arg)
 
-paths.dofile( 'utils.lua' )
+paths.dofile( 'helpers/utils.lua' )
 
 -- process images and load as tensors
 if paths.dirp( opt.images ) then
-    paths.dofile( 'data_io.lua' )
+    paths.dofile( 'helpers/data_io.lua' )
     dataset, classes = load_images_and_labels( opt.images, opt.width, opt.height )
 
 -- load directly the tensors from file
@@ -69,7 +69,7 @@ if opt.use_cuda then
 end
 
 
-paths.dofile( 'cnn.lua' )
+paths.dofile( 'nn/cnn.lua' )
 if opt.test then
     if not paths.filep( opt.nn ) then
         print( 'no nn file provided -- aborting' )
