@@ -2,6 +2,9 @@ require 'torch';
 require 'paths';
 require 'xlua';
 
+-- use main.lua from iTorch
+-- see README instructions
+
 function main()
     paths.dofile( 'helpers/utils.lua' )
 
