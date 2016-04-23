@@ -7,7 +7,7 @@ require 'nn';
 -- [input: dataset] the training dataset. Must comply with Torch NN classes
 -- [input: use_cuda] if on, the training dataset must already be on GPU (not done because it would restric the dataset data structure)
 -- [output: net] return the neural network
-function train( dataset, use_cuda )
+function train( dataset, no_classes, use_cuda )
 
     -- from Torch getting started tutorial
     net = nn.Sequential()
@@ -22,7 +22,7 @@ function train( dataset, use_cuda )
     net:add(nn.ReLU())                             -- non-linearity
     net:add(nn.Linear(120, 84))
     net:add(nn.ReLU())                             -- non-linearity
-    net:add(nn.Linear(84, 5))                      -- 5 is the number of outputs of the network (no classes)
+    net:add(nn.Linear(84, no_classes))             -- number of classes is the number of outputs of the network
     net:add(nn.LogSoftMax())                       -- converts the output to a log-probability. Useful for classification problems
 
     criterion = nn.ClassNLLCriterion()
@@ -33,6 +33,7 @@ function train( dataset, use_cuda )
         require 'cutorch';
         require 'cudnn';
 
+        -- cudnn faster than nn with cuda
         cudnn.fastest = true
         cudnn.benchmark = true
         -- cudnn.verbose = true

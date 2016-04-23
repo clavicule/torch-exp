@@ -3,7 +3,7 @@
 ### Experimentations with Torch.
 To get help, type:
 ```
-th main.lua -help
+th run.lua -help
 ```
 
 #### Current options are:
@@ -16,28 +16,41 @@ th main.lua -help
 * **-use_cuda**   *[optional]* set to true to use the GPU to train and test the neural network [false]
 
 
-#### Examples:
+#### Examples on running torch-exp:
+##### From Terminal
 Process images from folder and dump to file
 ```
-th main.lua -images /home/clavicule/train_data -width 32 -height 32 -dump /home/clavicule/my_training_set.dat
+th run.lua -images /home/clavicule/train_data -width 32 -height 32 -dump /home/clavicule/my_training_set.dat
 ```
 
 Process images from folder and dump to file, then train NN on images
 ```
-th main.lua -images /home/clavicule/train_data -width 32 -height 32 -dump /home/clavicule/my_training_set.dat -nn /home/clavicule/my_net.nn
+th run.lua -images /home/clavicule/train_data -width 32 -height 32 -dump /home/clavicule/my_training_set.dat -nn /home/clavicule/my_net.nn
 ```
 
 Load a previously dumped image set and train NN on it
 ```
-th main.lua -images /home/clavicule/my_training_set.dat -nn /home/clavicule/my_net.nn
+th run.lua -images /home/clavicule/my_training_set.dat -nn /home/clavicule/my_net.nn
 ```
 
 Process images from folder, dump it and test it on NN
 ```
-th main.lua -images /home/clavicule/test_data -width 32 -height 32 -nn /home/clavicule/my_net.nn -test -dump /home/clavicule/my_testing_set.dat
+th run.lua -images /home/clavicule/test_data -width 32 -height 32 -nn /home/clavicule/my_net.nn -test -dump /home/clavicule/my_testing_set.dat
 ```
 
 Load a previously dumped image set and test it on NN
 ```
-th main.lua -images /home/clavicule/my_testing_set.dat -nn /home/clavicule/my_net.nn -test
+th run.lua -images /home/clavicule/my_testing_set.dat -nn /home/clavicule/my_net.nn -test
+```
+
+##### From iTorch
+Load a previously dumped image set and test it on NN
+```
+dofile( 'main.lua' )
+opt = {}
+opt.images = '/home/clavicule/my_testing_set.dat'
+opt.nn = '/home/clavicule/my_net.nn'
+opt.test = ''
+opt.use_cuda = true
+main()
 ```

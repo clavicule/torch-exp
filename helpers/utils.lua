@@ -7,6 +7,7 @@ function size_of(T)
   return count
 end
 
+-- returns the mean and std dev of each channel (3x1 tensor for each)
 function get_data_stats( data )
     mean = {} -- store the mean, to normalize the test set in the future
     stdv  = {} -- store the standard-deviation for the future
@@ -20,6 +21,7 @@ function get_data_stats( data )
     return mean, stdv
 end
 
+-- normalize the dataset with the given mean and std dev
 function normalize_data( data, mean, stdv )
     for i = 1,3 do -- over each image channel
         data[{ {}, {i}, {}, {}  }]:add(-mean[i]) -- mean subtraction
