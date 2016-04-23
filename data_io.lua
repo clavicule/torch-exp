@@ -3,12 +3,7 @@ require 'paths';
 require 'image';
 require 'xlua';
 
--- returns size of string array
-function size_of(T)
-  local count = 0
-  for _ in pairs(T) do count = count + 1 end
-  return count
-end
+paths.dofile( 'utils.lua' )
 
 -- [input: folder_path] expected path should have subfolder
 --    each subfolder represents a category

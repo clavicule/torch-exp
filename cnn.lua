@@ -1,16 +1,13 @@
 require 'torch';
 require 'nn';
-require 'cunn';
-require 'cutorch';
 
--- function
 
 -- NN parameters to be changed: right now, it accepts input image size of 32x32
 -- train the image set on the CNN
--- [input: trainset] the training dataset. Must comply with Torch NN classes
--- [input: use_cuda] if on, the training dataset must already be on GPU (not done because it would restric the trainset data structure)
+-- [input: dataset] the training dataset. Must comply with Torch NN classes
+-- [input: use_cuda] if on, the training dataset must already be on GPU (not done because it would restric the dataset data structure)
 -- [output: net] return the neural network
-function train( trainset, use_cuda )
+function train( dataset, use_cuda )
 
     -- from Torch getting started tutorial
     net = nn.Sequential()
@@ -25,22 +22,30 @@ function train( trainset, use_cuda )
     net:add(nn.ReLU())                             -- non-linearity
     net:add(nn.Linear(120, 84))
     net:add(nn.ReLU())                             -- non-linearity
-    net:add(nn.Linear(84, 10))                     -- 10 is the number of outputs of the network (in this case, 10 digits)
+    net:add(nn.Linear(84, 5))                      -- 5 is the number of outputs of the network (no classes)
     net:add(nn.LogSoftMax())                       -- converts the output to a log-probability. Useful for classification problems
 
     criterion = nn.ClassNLLCriterion()
 
     -- load data on GPU if cuda option is on
     if use_cuda then
+        require 'cunn';
+        require 'cutorch';
+        require 'cudnn';
+
+        cudnn.fastest = true
+        cudnn.benchmark = true
+        -- cudnn.verbose = true
+        cudnn.convert(net, cudnn)
         net:cuda()
         criterion:cuda()
     end
 
-    trainer = nn.StochasticGradient(net, criterion)
-    trainer.learningRate = 0.001
-    trainer.maxIteration =  -- just do 5 epochs of training.
+    sgd = nn.StochasticGradient(net, criterion)
+    sgd.learningRate = 0.01
+    sgd.maxIteration = 10 -- # of epochs
 
-    trainer:train(trainset)
+    sgd:train(dataset)
 
     return net
 end
