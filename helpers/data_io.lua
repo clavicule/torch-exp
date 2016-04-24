@@ -69,3 +69,77 @@ function load_images_and_labels( folder_path, width, height )
 
     return image_set, classes
 end
+
+-- call this function to restructure the Pascal VOC dataset folders into
+-- expected structure by load_images_and_labels() function.
+-- [input: path_to_images] path to VOC folder containing the jpg images
+-- [input: path_to_annotations] path to txt files containing list of images for train, val and both
+-- [input: output_path] output folder where data will be copied to following the new folder structure
+-- Note: this function copies images, the original data is not removed nor its original folder structure
+function process_pascal_voc_dataset( path_to_images, path_to_annotations, output_path )
+    if not paths.dirp( output_path ) then
+        print( 'output directory does not exist' )
+        return
+    end
+
+    -- iterate on all annotations files
+    -- Naming expected
+    -- *_train.txt *_trainval.txt and *_val.txt
+    counter = 0
+    for txt in paths.iterfiles( path_to_annotations ) do
+        -- print progress: not using xlua because total number of files is not none
+        -- it is possible to get that number, however it's not worth it
+        counter = counter + 1
+        print( '==> (' .. counter .. ') Processing file ' .. txt )
+
+        -- figure out which type of data we are dealing with: val, train or both
+        local train_class_name = string.split( txt, "_train" )
+        local val_class_name = string.split( txt, "_val" )
+        local trainval_class_name = string.split( txt, "_trainval" )
+        class_name = nil
+        dir_name = nil
+
+        -- start with trainval, other split with train will grab it too
+        if #trainval_class_name > 1 then
+            class_name = trainval_class_name[1]
+            dir_name = "trainval"
+        elseif #train_class_name > 1 then
+            class_name = train_class_name[1]
+            dir_name = "train"
+        elseif #val_class_name > 1 then
+            class_name = val_class_name[1]
+            dir_name = "val"
+        end
+
+        if class_name ~= nil and dir_name ~= nil then
+            -- check if destination sub-directory structure exists
+            -- create it if not
+            local output_dir_name = paths.concat( output_path, dir_name )
+            local output_dir_class = paths.concat( output_dir_name, class_name )
+
+            if not paths.dirp( output_dir_name ) then
+                paths.mkdir( output_dir_name )
+            end
+
+            if not paths.dirp( output_dir_class ) then
+                paths.mkdir( output_dir_class )
+            end
+
+            -- read each line of the annoatation file
+            for line in io.lines( paths.concat( path_to_annotations, txt ) ) do
+
+                -- looking for 1's only, so we expect a 2-whitespace separation
+                local is_class = string.split( line, "  " )
+                local filename = ''
+                if #is_class > 1 then
+                    filename = paths.concat( path_to_images, is_class[1] .. '.jpg' )
+                end
+
+                local file_to_copy = paths.concat( path_to_images, filename )
+                if paths.filep( file_to_copy ) then
+                    os.execute( 'cp ' .. file_to_copy .. ' ' .. paths.concat( output_path, dir_name, class_name ) )
+                end
+            end
+        end
+    end
+end

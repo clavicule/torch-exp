@@ -136,4 +136,6 @@ function main()
         }
         torch.save( opt.nn, nn_to_save )
     end
+
+    return net
 end
