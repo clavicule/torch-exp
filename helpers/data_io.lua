@@ -2,6 +2,7 @@ require 'torch';
 require 'paths';
 require 'image';
 require 'xlua';
+require 'xml';
 
 paths.dofile( 'utils.lua' )
 
@@ -139,6 +140,78 @@ function process_pascal_voc_dataset( path_to_images, path_to_annotations, output
                 if paths.filep( file_to_copy ) then
                     os.execute( 'cp ' .. file_to_copy .. ' ' .. paths.concat( output_path, dir_name, class_name ) )
                 end
+            end
+        end
+    end
+end
+
+-- call this function to crop the pascal VOC images by their anootation bounding box
+-- [input: path_to_xml] path to VOC folder containing the xml annotation files
+-- [input: path_to_images] path to VOC folder containing the jpg images
+-- [input: output_path] output folder where data will be copied to following the new folder structure
+-- Note: this function copies images before cropping, the original data is not removed
+function crop_pascal_voc_dataset( path_to_xml, path_to_images, output_path )
+    if not paths.dirp( output_path ) then
+        print( 'output directory does not exist' )
+        return
+    end
+
+    lubxml = require 'xml';
+    lub = require 'lub';
+
+    --  counter is also use to get unique image name and avoid overwritting
+    counter = 0
+    for xml_file in paths.iterfiles( path_to_xml ) do
+        -- print progress: not using xlua because total number of files is not none
+        -- it is possible to get that number, however it's not worth it
+        counter = counter + 1
+        print( '==> (' .. counter .. ') Processing file ' .. xml_file )
+
+        -- read entire xml file as a string (lubxml takes string as input)
+        local file = assert( io.open( paths.concat( path_to_xml, xml_file ), 'r' ) )
+        local xml_content = file:read( '*all' )
+        file:close()
+
+        -- get the filename of the image we are dealing with
+        local xml_table = lubxml.load( xml_content )
+        local filename = lubxml.find( xml_table, 'filename' )[1]
+        local image_filename =  paths.concat( path_to_images, filename )
+
+        if paths.filep( image_filename ) then
+
+            -- load the image once only
+            local image_to_load = image.load( image_filename )
+
+            -- recursive search to find all nodes of type object
+            local object_list = {}
+            lub.search( xml_table, function( node )
+                if node.xml == 'object' then
+                    table.insert( object_list, node )
+                end
+            end)
+
+            -- get the bounding box and class name for each object
+            for k, object in pairs( object_list ) do
+                local class = lubxml.find( object, 'name' )
+                local bbox = lubxml.find( object, 'bndbox' )
+                local xmax = lubxml.find( bbox, 'xmax' )
+                local xmin = lubxml.find( bbox, 'xmin' )
+                local ymax = lubxml.find( bbox, 'ymax' )
+                local ymin = lubxml.find( bbox, 'ymin' )
+
+                local output_dir = paths.concat( output_path, class[1] )
+                if not paths.dirp( output_dir ) then
+                    paths.mkdir( output_dir )
+                end
+
+                local x1 = tonumber( xmin[1] )
+                local y1 = tonumber( ymin[1] )
+                local x2 = tonumber( xmax[1] )
+                local y2 = tonumber( ymax[1] )
+
+                -- crop the image by the bounding box and save it in the folder of the proper class
+                local cropped_image = image.crop( image_to_load, x1, y1, x2, y2 )
+                image.save( paths.concat( output_dir, counter .. '.jpg' ), cropped_image )
             end
         end
     end
