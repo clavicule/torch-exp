@@ -61,34 +61,33 @@ Have a look at the helpers lua file
 
 ###### `load_images_and_labels( folder_path, width, height )`
 * [input: folder_path] expected path should have subfolder
-    each subfolder represents a category
-    the name of the subfolder is used as the label for that category
-    the subfolder is expected to contain only images
-    grayscale images are ignored (for now)
+ *   each subfolder represents a category
+ *   the name of the subfolder is used as the label for that category
+ *   the subfolder is expected to contain only images
+ *   grayscale images are ignored (for now)
 * [input: width] width to which the images will be resized to
 * [input: height] height to which the images will be resize to
 * [output: image_set] the format is:
-    image_set.data: 4D tensor no_img x 3-channels x w x h
-    image_set.label: 1D tensor containing IDs as integers
+ *   image_set.data: 4D tensor no_img x 3-channels x w x h
+ *   image_set.label: 1D tensor containing IDs as integers
 * [output: classes] an array of string mapping the categories and the table.label IDs
 
 ###### `process_pascal_voc_dataset( path_to_images, path_to_annotations, output_path )`
-* call this function to restructure the Pascal VOC dataset folders into
-  expected structure by load_images_and_labels() function.
+  call this function to restructure the Pascal VOC dataset folders into expected structure by load_images_and_labels() function.
 * [input: path_to_images] path to VOC folder containing the jpg images
 * [input: path_to_annotations] path to txt files containing list of images for train, val and both
 * [input: output_path] output folder where data will be copied to following the new folder structure
 * Note: this function copies images, the original data is not removed nor its original folder structure
 
 ###### `crop_pascal_voc_dataset( path_to_xml, path_to_images, output_path )`
-* call this function to crop the pascal VOC images by their anootation bounding box
+  call this function to crop the pascal VOC images by their anootation bounding box
 * [input: path_to_xml] path to VOC folder containing the xml annotation files
 * [input: path_to_images] path to VOC folder containing the jpg images
 * [input: output_path] output folder where data will be copied to following the new folder structure
 * Note: this function copies images before cropping, the original data is not removed
 
 ###### `split_dataset( path_to_images, output_path, split_ratio )`
-* split a dataset in 2 parts: train and test
+  split a dataset in 2 parts: train and test
 * [input: path_to_images] path to folder containing the jpg images organized in labelled sub-folders
 * [input: output_path] output folder where data will be copied to following the new folder structure (train/{label} and test/{label})
 * [input: split_ratio] % of images to copy in the train dataset. The rest is copied to test dataset
