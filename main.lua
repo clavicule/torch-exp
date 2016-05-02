@@ -46,6 +46,17 @@ function main()
         return self.data:size(1)
     end
 
+    function dataset:nChannels()
+        return self.data:size(2)
+    end
+
+    function dataset:w()
+        return self.data:size(3)
+    end
+
+    function dataset:h()
+        return self.data:size(4)
+    end
 
     print( 'size of the dataset: ' .. dataset:size() )
 
